@@ -1,0 +1,38 @@
+
+service: public-facing
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: prod
+  region: us-west-1
+  logRetentionInDays: 120
+  versionFunctions: true
+  memorySize: 1024
+  timeout: 10
+  logs:
+    restApi: true
+  tags:
+    deployment: serverless.com
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - lambda:InvokeAsync
+      Resource:
+        - "*"
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+      Resource: "*"
+
+
+functions:
+  twilio-webhook:
+    handler: twilio_webhook_handler.lambda_handler
+    events:
+      - http:
+          path: /twilio_webhook
+          method: post
+
