@@ -22,6 +22,7 @@ provider:
         - lambda:InvokeAsync
       Resource:
         - "*"
+    # Take SES permissions out if you have another handler on another stack doing it
     - Effect: Allow
       Action:
         - ses:SendEmail

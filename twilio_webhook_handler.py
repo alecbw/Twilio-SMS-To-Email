@@ -1,7 +1,7 @@
 import logging
 import json
 from datetime import datetime
-
+import pprint
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -22,16 +22,13 @@ def lambda_handler(event, context):
         required_params=["Tocountry", "Tostate", "Smsmessagesid", "Fromzip", "Fromstate", "Fromcity", "From", "Body"],
 
     )
-    # TODO Add newlines for readability in the eventual email
-    # param_dict = {k:(v + "\t\n") for k,v in param_dict.items()}
-
     # Clean up the strings to make human readable
     param_dict["From"] = param_dict["From"].replace("%2B", "")
     param_dict["Body"] = param_dict["Body"].replace("+", " ")
 
     invocation_dict = {
         "Subject": f"Received SMS: {datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}",
-        "Body": json.dumps(param_dict),
+        "Body": pprint.pformat(param_dict),
         "Recipients": ["alec@contextify.io"] # Has to be a list
     }
 
