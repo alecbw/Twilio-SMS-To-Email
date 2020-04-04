@@ -77,12 +77,12 @@ def validate_params(event, required_params, **kwargs):
 
 
 def standardize_event(event):
-    if "body" in event:  # POST, synchronous API Gateawy
+    if event.get("body"):  # POST, synchronous API Gateawy
         body_dict = {x[0]:x[1] for x in [x.split("=") for x in event["body"].split("&")]}
         event = {**event, **body_dict}
-    elif "queryStringParameters" in event:  # GET, synchronous API Gateway
+    elif event.get("queryStringParameters"):  # GET, synchronous API Gateway
         event.update(event["queryStringParameters"])
-    elif "query" in event:  # GET, async API Gateway
+    elif event.get("query"):  # GET, async API Gateway
         event.update(event["query"])
 
     result_dict = {
