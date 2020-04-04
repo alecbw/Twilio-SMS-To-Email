@@ -7,28 +7,35 @@ logger.setLevel(logging.INFO)
 
 import boto3
 
-## NOTE: SES not available in us-west-1. I use us-west-2 for SES
+"""
+Some notes:
+* SES not available in us-west-1. I use us-west-2 for SES
+* The params that Twilio pass that I use are as follows:
+    "ToCountry", "ToState", "SmsMessageSid", "FromZip", "FromState", "FromCity", "From", "Body"],
+You'll notice in the code the required_params are slightly different. That's intentional - validate_params titlecases all the keys
+"""
+
 
 def lambda_handler(event, context):
     param_dict, missing_params = validate_params(
         event,
-        # required_params=["ToCountry", "ToState", "SmsMessageSid", "FromZip", "FromState", "FromCity", "From", "Body"],
         required_params=["Tocountry", "Tostate", "Smsmessagesid", "Fromzip", "Fromstate", "Fromcity", "From", "Body"],
 
     )
-    # Add newlines for readability in the eventual email
+    # TODO Add newlines for readability in the eventual email
     # param_dict = {k:(v + "\t\n") for k,v in param_dict.items()}
+
+    # Clean up the strings to make human readable
     param_dict["From"] = param_dict["From"].replace("%2B", "")
     param_dict["Body"] = param_dict["Body"].replace("+", " ")
 
     invocation_dict = {
         "Subject": f"Received SMS: {datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}",
         "Body": json.dumps(param_dict),
-        "Recipients": ["alec@contextify.io"]
+        "Recipients": ["alec@contextify.io"] # Has to be a list
     }
 
-
-
+    # It is preferable to invoke a separate Lambda that sends emails
     request_data, request_status = invoke_lambda(
         invocation_dict,
         "contextify-serverless-prod-send-email",
@@ -36,7 +43,11 @@ def lambda_handler(event, context):
     )
     logging.info(request_data, request_status)
 
-        # response = boto3.client("ses", region_name="us-west-2").send_email(
+    """ If you want all functionality in one handler:
+            * comment out the invoke_lambda code
+            * comment back in the below code
+    """
+    # response = boto3.client("ses", region_name="us-west-2").send_email(
     #     Source="hello@contextify.email",
     #     ReplyToAddresses=["hello@contextify.email"],
     #     Destination={"ToAddresses": invocation_dict["Recipients"]},
@@ -48,7 +59,10 @@ def lambda_handler(event, context):
 
 ######################## Standard Lambda Helpers ################################################
 
-
+"""
+Some functionality is included here (e.g. optional params) that isn't necessary
+here but is used elsewhere in my Serverless stack
+"""
 def validate_params(event, required_params, **kwargs):
     event = standardize_event(event)
     commom_required_params = list(set(event).intersection(required_params))
@@ -81,6 +95,9 @@ def standardize_event(event):
     return result_dict
 
 
+"""
+Supports synchronous (RequestResponse) and asynchronous (Event) invocations
+"""
 def invoke_lambda(params, function_name, invoke_type):
 
     lambda_client = boto3.client("lambda")
