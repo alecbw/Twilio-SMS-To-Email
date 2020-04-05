@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     invocation_dict = {
         "Subject": f"Received SMS: {datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}",
         "Body": pprint.pformat(param_dict),
-        "Recipients": ["alec@contextify.io"] # Has to be a list
+        "Recipients": ["hello@your-domain.com"] # Has to be a list
     }
 
     # It is preferable to invoke a separate Lambda that sends emails
