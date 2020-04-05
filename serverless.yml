@@ -1,5 +1,5 @@
 
-service: public-facing
+service: public-stack
 
 provider:
   name: aws

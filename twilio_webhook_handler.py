@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     # It is preferable to invoke a separate Lambda that sends emails
     request_data, request_status = invoke_lambda(
         invocation_dict,
-        "contextify-serverless-prod-send-email",
+        "STACKNAME-prod-send-email",
         "RequestResponse"
     )
     logging.info(request_data, request_status)
@@ -45,8 +45,8 @@ def lambda_handler(event, context):
             * comment back in the below code
     """
     # response = boto3.client("ses", region_name="us-west-2").send_email(
-    #     Source="hello@contextify.email",
-    #     ReplyToAddresses=["hello@contextify.email"],
+    #     Source="hello@your-domain.com",
+    #     ReplyToAddresses=["hello@your-domain.com"],
     #     Destination={"ToAddresses": invocation_dict["Recipients"]},
     #     Message={"Subject": {"Data": invocation_dict["Subject"]}, "Body": {"Text": {"Data": invocation_dict["Body"]}}},
     # )
